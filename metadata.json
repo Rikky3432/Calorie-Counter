@@ -1,0 +1,7 @@
+{
+  "name": "Copy of NutriSnap - AI Food Calorie Analyzer",
+  "description": "Instantly analyze the nutritional content of your food by taking a photo. Get calorie estimates, macro breakdowns, and health tips powered by Gemini AI.",
+  "requestFramePermissions": [
+    "camera"
+  ]
+}
