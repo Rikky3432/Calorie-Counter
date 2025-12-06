@@ -1,7 +1,15 @@
 import { GoogleGenAI, Type } from "@google/genai";
 import { AnalysisResult } from "../types";
 
-const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+// Initialize lazily to prevent crash if env var is missing during initial load
+const getAiClient = () => {
+  const apiKey = process.env.API_KEY || (window as any).GEMINI_API_KEY;
+  if (!apiKey) {
+    console.warn("Missing Gemini API Key");
+    throw new Error("API Key is missing. Please check your .env file.");
+  }
+  return new GoogleGenAI({ apiKey });
+};
 
 const SYSTEM_INSTRUCTION = `
 You are an expert nutritionist and food analyst. Your task is to analyze images of food and provide a detailed nutritional breakdown.
@@ -18,11 +26,12 @@ Return the data in strict JSON format.
 export const analyzeFoodImage = async (base64Image: string): Promise<AnalysisResult> => {
   try {
     // Remove header if present (e.g., "data:image/jpeg;base64,")
-    const cleanBase64 = base64Image.includes('base64,') 
-      ? base64Image.split('base64,')[1] 
+    const cleanBase64 = base64Image.includes('base64,')
+      ? base64Image.split('base64,')[1]
       : base64Image;
 
-    const response = await ai.models.generateContent({
+    const client = getAiClient();
+    const response = await client.models.generateContent({
       model: 'gemini-2.5-flash',
       contents: {
         parts: [

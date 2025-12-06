@@ -1,0 +1,20 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Rules for the 'scans' collection
+    match /scans/{scanId} {
+      
+      // ALLOW CREATE:
+      // 1. User must be signed in (request.auth != null)
+      // 2. The 'userId' field in the new document must match the user's ID
+      allow create: if request.auth != null && request.resource.data.userId == request.auth.uid;
+      
+      // ALLOW READ, UPDATE, DELETE:
+      // 1. User must be signed in
+      // 2. The existing document's 'userId' must match the user's ID
+      // This ensures users can ONLY see and modify their own data.
+      allow read, update, delete: if request.auth != null && resource.data.userId == request.auth.uid;
+    }
+  }
+}
